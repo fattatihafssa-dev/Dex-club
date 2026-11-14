@@ -26,16 +26,6 @@ export function searchCards(cards, term) {
     );
   }
 
-  // TODO 1. Nettoyez le terme : trim() puis toLowerCase()
-  // TODO 2. Si le terme est vide, renvoyez une copie de cards
-  // TODO 3. Sinon, renvoyez cards.filter(...) : le nom en minuscules contient-il le terme ?
-
-
-
-/**
- * Renvoie les cartes du type demandé, ou toutes si `type` vaut "Tous".
- * Exemple : filterByType(cards, "Eau") → [Tidalix, Reefling, Aquaphin]
- */
 export function filterByType(cards, type) {
    if(type === "Tous") {
     return [...cards];
@@ -52,8 +42,11 @@ export function filterByType(cards, type) {
  * Exemple : getVisibleCards(cards, { term: "kit", type: "Feu" }) → [Emberkit]
  */
 export function getVisibleCards(cards, filters) {
+  const typeFiltered = filterByType(cards,filters.type)
+  const searchFilered = searchCards(typeFiltered , filters.term);
+  return searchFilered;
   // TODO : appelez filterByType, puis searchCards sur le résultat
-  return [];
+  
 }
 
 /**
@@ -61,11 +54,21 @@ export function getVisibleCards(cards, filters) {
  * Exemple : countByType(cards) → { Feu: 3, Eau: 3, Plante: 3, Électrik: 3 }
  */
 export function countByType(cards) {
+  const counts = {}
+  for ( const card of cards) {
+      if(!counts[Carte.type]) { 
+        counts[card.type] = 0;
+      }
+       counts[card.type]++;
+  }
+
+    return counts;
+ }
   // TODO 1. Créez un objet vide : const counts = {};
   // TODO 2. Pour chaque carte : si counts[carte.type] n'existe pas, mettez 0, puis ajoutez 1
   // TODO 3. Renvoyez counts
-  return {};
-}
+
+
 
 // -------------------------------------------------------------
 // PALIER 3 (bonus)

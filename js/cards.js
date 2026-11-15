@@ -1,35 +1,30 @@
 
 export function searchCards(cards, term) {
-   const cleanTerm = term.trim().toLowerCase();
+    const cleanTerm = term.trim().toLowerCase();
+
     if (!cleanTerm) {
-      return [...cards];
+        return [...cards];
     }
+
     return cards.filter(card =>
-    card.nom.toLowerCase().includes(cleanTerm)
-);
-  }
+        card.nom.toLowerCase().includes(cleanTerm)
+    );
+}
 
 export function filterByType(cards, type) {
-   if(type === "Tous") {
-    return [...cards];
-   }
-    
+    if (type === "Tous") {
+        return [...cards];
+    }
+
     return cards.filter(card => card.type === type);
 }
- 
 
-
-
- 
 export function getVisibleCards(cards, filters) {
-  const typeFiltered = filterByType(cards,filters.type)
-  const searchFilered = searchCards(typeFiltered , filters.term);
+    const typeFiltered = filterByType(cards, filters.type);
+    const searchFiltered = searchCards(typeFiltered, filters.term);
 
-  return searchFilered;
-}  
-  
-
-
+    return searchFiltered;
+}
 
 export function countByType(cards) {
     const counts = {};
@@ -44,7 +39,7 @@ export function countByType(cards) {
 
     return counts;
 }
-  
+
 // -------------------------------------------------------------
 // PALIER 3 (bonus)
 // -------------------------------------------------------------
@@ -54,8 +49,32 @@ export function countByType(cards) {
  * sort vaut "numero" (id croissant), "prix-asc" ou "prix-desc".
  */
 export function sortCards(cards, sort) {
-  // TODO : [...cards].sort((a, b) => ...)
-  return cards;
+    // Create a copy so the original array is not modified
+    const sortedCards = [...cards];
+
+    // Sort by number (id)
+    if (sort === "numero") {
+        return sortedCards.sort((a, b) => {
+            return Number(a.id) - Number(b.id);
+        });
+    }
+
+    // Sort by price: lowest to highest
+    if (sort === "prix-asc") {
+        return sortedCards.sort((a, b) => {
+            return Number(a.prix) - Number(b.prix);
+        });
+    }
+
+    // Sort by price: highest to lowest
+    if (sort === "prix-desc") {
+        return sortedCards.sort((a, b) => {
+            return Number(b.prix) - Number(a.prix);
+        });
+    }
+
+    // Unknown option: keep the original order
+    return sortedCards;
 }
 
 /**
@@ -67,8 +86,14 @@ export function sortCards(cards, sort) {
  *   ruptures    : nombre de cartes dont le stock vaut 0
  */
 export function getStats(cards) {
-  // TODO : reduce pour la valeur, une boucle ou reduce pour la plus chère, filter(...).length pour compter
-  return { valeurStock: 0, plusChere: null, legendaires: 0, ruptures: 0 };
+    // TODO : reduce pour la valeur, une boucle ou reduce pour la plus chère,
+    // filter(...).length pour compter
+    return {
+        valeurStock: 0,
+        plusChere: null,
+        legendaires: 0,
+        ruptures: 0
+    };
 }
 
 /**
@@ -80,8 +105,8 @@ export function getStats(cards) {
  *   stock pas un nombre entier de 0 ou plus     → "Le stock doit être un nombre entier (0 ou plus)"
  */
 export function validateCardForm(data) {
-  // TODO
-  return {};
+    // TODO
+    return {};
 }
 
 /**
@@ -90,6 +115,6 @@ export function validateCardForm(data) {
  * image = "images/nouvelle.svg" ; description = "Carte proposée par un membre du club."
  */
 export function addCard(cards, data) {
-  // TODO
-  return cards;
+    // TODO
+    return cards;
 }

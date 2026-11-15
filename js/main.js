@@ -1,3 +1,4 @@
+
 // =============================================================
 // main.js — l'ÉTAT de l'application et les ÉCOUTEURS
 // Le chemin d'une action est toujours le même :
@@ -27,16 +28,18 @@ const cartList = document.querySelector("#cart-list");
 const sortSelect = document.querySelector("#sort");
 const form = document.querySelector("#card-form");
 
-// ---------- Redessiner la page à partir de l'état (déjà écrit) ----------
-
-   
-
-    function refresh() {
-      const visible = dataCards.getVisibleCards(
+// ---------- Redessiner la page à partir de l'état ----------
+function refresh() {
+    // 1. Filtrer les cartes selon le type et la recherche
+    const filtered = dataCards.getVisibleCards(
         state.cards,
         state.filters
     );
 
+    // 2. Trier les cartes filtrées
+    const visible = dataCards.sortCards(filtered, state.sort);
+
+    // 3. Afficher les types, le compteur et les cartes
     ui.renderTypes(
         dataCards.countByType(state.cards),
         state.filters.type
@@ -44,9 +47,15 @@ const form = document.querySelector("#card-form");
 
     ui.renderCount(visible.length);
     ui.renderGrid(visible, state.cart);
+
+    // 4. Afficher le panier et ses totaux
+    ui.renderCart(
+        state.cart,
+        state.cards,
+        dataCart.cartTotal(state.cart, state.cards),
+        dataCart.cartCount(state.cart)
+    );
 }
-      
-    
 
 // =============================================================
 // PALIER 1
@@ -54,108 +63,119 @@ const form = document.querySelector("#card-form");
 
 // Recherche : à chaque frappe
 searchInput.addEventListener("input", () => {
-   state.filters.term = searchInput.value;
-   refresh()
-  // TODO : mettez à jour state.filters.term avec la valeur du champ, puis refresh()
+    state.filters.term = searchInput.value;
+    refresh();
 });
 
 // Types : UN SEUL écouteur sur #types (délégation)
 typesBox.addEventListener("click", (event) => {
-  const button = event.target.cloeset("[data-type]");
+    // 1. Retrouvez le bouton cliqué
+    const button = event.target.closest("[data-type]");
 
-  if(!button)
+    // 2. Si on a cliqué à côté d'un bouton, on s'arrête
+    if (!button) return;
 
-    state.filters.type = button.dtaset.type;
+    // 3. Mettre à jour le type choisi et rafraîchir
+    state.filters.type = button.dataset.type;
     refresh();
-  });
-
-  // TODO 1. Retrouvez le bouton cliqué : event.target.closest("[data-type]")
-  // TODO 2. Si on a cliqué à côté d'un bouton, on s'arrête (return)
-  // TODO 3. state.filters.type = bouton.dataset.type ; refresh()
-
+});
 
 // Grille : UN SEUL écouteur sur #grid (délégation)
 grid.addEventListener("click", (event) => {
-    if (event.target.closest("[data-add]")) return;
 
+    // PALIER 2 — bouton « Ajouter »
+    // On vérifie d'abord si le bouton Ajouter a été cliqué
+    const addButton = event.target.closest("[data-add]");
+
+    if (addButton) {
+        state.cart = dataCart.addToCart(
+            state.cart,
+            Number(addButton.dataset.add),
+            state.cards
+        );
+
+        refresh();
+        return;
+    }
+
+    // PALIER 1 — fiche de la carte
+    // 1. Retrouver la carte cliquée
     const cardEl = event.target.closest(".card");
 
     if (!cardEl) return;
 
+    // 2. Retrouver la carte dans les données
     const card = dataCart.findCard(
         state.cards,
         Number(cardEl.dataset.id)
     );
 
-    ui.renderDetail(card);
+    // 3. Afficher la fiche
+    if (card) {
+        ui.renderDetail(card);
+    }
 });
-
-
-  // PALIER 2 — bouton « Ajouter » (à faire AVANT la fiche, et terminer par return
-  //            pour que le clic sur le bouton n'ouvre pas la fiche) :
-  // TODO a. const addButton = event.target.closest("[data-add]")
-  // TODO b. Si addButton existe : state.cart = dataCart.addToCart(state.cart, Number(addButton.dataset.add), state.cards) ;
-  //         refresh() ; return
-
-  // PALIER 1 — fiche de la carte :
-  // TODO 1. const cardEl = event.target.closest(".card") ; si rien, return
-  // TODO 2. Retrouvez la carte avec dataCart.findCard(state.cards, Number(cardEl.dataset.id))
-  // TODO 3. ui.renderDetail(carte)
-
 
 // =============================================================
 // PALIER 2
 // =============================================================
 
 // Panier : UN SEUL écouteur sur #cart-list (délégation)
-// Panier : UN SEUL écouteur sur #cart-list (délégation)
 cartList.addEventListener("click", (event) => {
+
+    // 1. Retrouver le bouton cliqué
     const button = event.target.closest("[data-action]");
 
-    if (!button) {
-        return;
-    }
+    if (!button) return;
 
+    // 2. Retrouver la ligne du panier
     const cartLine = button.closest(".cart-line");
 
-    if (!cartLine) {
-        return;
-    }
+    if (!cartLine) return;
 
     const id = Number(cartLine.dataset.id);
     const action = button.dataset.action;
 
+    // 3. Selon l'action : augmenter, diminuer ou supprimer
     if (action === "plus") {
-        state.cart = dataCart.changeQuantity(state.cart, id, 1, state.cards);
-    } else if (action === "minus") {
-        state.cart = dataCart.changeQuantity(state.cart, id, -1, state.cards);
-    } else if (action === "remove") {
-        state.cart = dataCart.removeFromCart(state.cart, id);
+        state.cart = dataCart.changeQuantity(
+            state.cart, id, 1, state.cards
+        );
     }
 
+    else if (action === "minus") {
+        state.cart = dataCart.changeQuantity(
+            state.cart, id, -1, state.cards
+        );
+    }
+
+    else if (action === "remove") {
+        state.cart = dataCart.removeFromCart(
+            state.cart, id
+        );
+    }
+
+    // 4. Rafraîchir la page
     refresh();
 });
-
-  // TODO 1. const button = event.target.closest("[data-action]") ; si rien, return
-  // TODO 2. const id = Number(button.closest(".cart-line").dataset.id)
-  // TODO 3. Selon button.dataset.action ("plus", "minus", "remove") :
-  //         changeQuantity(… +1 …), changeQuantity(… -1 …) ou removeFromCart(…)
-  // TODO 4. refresh()
 
 // =============================================================
 // PALIER 3 (bonus)
 // =============================================================
 
+// Tri : écouter le changement du menu déroulant
 sortSelect.addEventListener("change", () => {
-  // TODO : state.sort = sortSelect.value ; refresh()
+    state.sort = sortSelect.value;
+    refresh();
 });
 
+// Formulaire : proposer une nouvelle carte
 form.addEventListener("submit", (event) => {
-  // TODO 1. event.preventDefault()
-  // TODO 2. Lisez les champs : { nom, prix, stock, type, rarete }
-  // TODO 3. const errors = dataCards.validateCardForm(data) ; ui.showFormErrors(errors)
-  // TODO 4. Aucune erreur (Object.keys(errors).length === 0) :
-  //         state.cards = dataCards.addCard(state.cards, data) ; form.reset() ; refresh()
+    // TODO 1. event.preventDefault()
+    // TODO 2. Lisez les champs : { nom, prix, stock, type, rarete }
+    // TODO 3. const errors = dataCards.validateCardForm(data) ; ui.showFormErrors(errors)
+    // TODO 4. Aucune erreur (Object.keys(errors).length === 0) :
+    //         state.cards = dataCards.addCard(state.cards, data) ; form.reset() ; refresh()
 });
 
 // ---------- Démarrage ----------

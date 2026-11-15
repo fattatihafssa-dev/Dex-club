@@ -238,7 +238,53 @@ export function renderDetail(card) {
  * - pour le nom et le stock d'une ligne, retrouvez la carte dans cards avec find
  */
 export function renderCart(cart, cards, total, nbCards) {
-  // TODO
+    cartList.innerHTML = "";
+
+    if (cart.length === 0) {
+        const message = el("li", "empty", "Votre panier est vide");
+        cartList.append(message);
+    } else {
+        for (const item of cart) {
+            const card = cards.find(card => card.id === item.id);
+
+            if (!card) continue;
+
+            const line = el("li", "cart-line");
+            line.dataset.id = item.id;
+
+            const name = el("span", "cart-line__name", card.nom);
+
+            const minus = el("button", "btn btn--small", "−");
+            minus.type = "button";
+            minus.dataset.action = "minus";
+
+            const quantity = el(
+                "span",
+                "cart-line__qty",
+                String(item.quantite)
+            );
+
+            const plus = el("button", "btn btn--small", "+");
+            plus.type = "button";
+            plus.dataset.action = "plus";
+
+            if (item.quantite >= card.stock) {
+                plus.disabled = true;
+            }
+
+            const remove = el("button", "btn btn--small", "Retirer");
+            remove.type = "button";
+            remove.dataset.action = "remove";
+
+            line.append(name, minus, quantity, plus, remove);
+            cartList.append(line);
+        }
+    }
+
+    cartCountEl.textContent =
+        nbCards + (nbCards === 1 ? " carte" : " cartes");
+
+    cartTotalEl.textContent = formatPrix(total);
 }
 
 // -------------------------------------------------------------

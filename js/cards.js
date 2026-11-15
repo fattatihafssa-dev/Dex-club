@@ -1,29 +1,12 @@
-// =============================================================
-// cards.js — fonctions de DONNÉES du catalogue
-// Règles : aucune ligne avec `document` dans ce fichier.
-//          On ne modifie jamais le tableau reçu : on renvoie un NOUVEAU tableau ou une valeur.
-// Testez chaque fonction dans la console (voir README) ou avec tests/tests.html.
-// =============================================================
 
-// -------------------------------------------------------------
-// PALIER 1
-// -------------------------------------------------------------
-
-/**
- * Renvoie les cartes dont le nom contient `term`.
- * - sans tenir compte des majuscules : "EMBER" trouve "Emberkit"
- * - sans tenir compte des espaces autour : "  kit " trouve "Emberkit" et "Sparkit"
- * - si `term` est vide, renvoie toutes les cartes
- * Exemple : searchCards(cards, "kit") → [Emberkit, Sparkit]
- */
 export function searchCards(cards, term) {
    const cleanTerm = term.trim().toLowerCase();
     if (!cleanTerm) {
       return [...cards];
     }
-    return cards.filter(cards => 
-    cards.nom.toLowerCase().includes(cleanTerm)
-    );
+    return cards.filter(card =>
+    card.nom.toLowerCase().includes(cleanTerm)
+);
   }
 
 export function filterByType(cards, type) {
@@ -36,40 +19,32 @@ export function filterByType(cards, type) {
  
 
 
-/**
- * Combine la recherche et le type.
- * filters = { term: "kit", type: "Feu" }
- * Exemple : getVisibleCards(cards, { term: "kit", type: "Feu" }) → [Emberkit]
- */
+
+ 
 export function getVisibleCards(cards, filters) {
   const typeFiltered = filterByType(cards,filters.type)
   const searchFilered = searchCards(typeFiltered , filters.term);
-  return searchFilered;
-  // TODO : appelez filterByType, puis searchCards sur le résultat
-  
-}
 
-/**
- * Compte les cartes de chaque type.
- * Exemple : countByType(cards) → { Feu: 3, Eau: 3, Plante: 3, Électrik: 3 }
- */
+  return searchFilered;
+}  
+  
+
+
+
 export function countByType(cards) {
-  const counts = {}
-  for ( const card of cards) {
-      if(!counts[Carte.type]) { 
-        counts[card.type] = 0;
-      }
-       counts[card.type]++;
-  }
+    const counts = {};
+
+    for (const card of cards) {
+        if (!counts[card.type]) {
+            counts[card.type] = 0;
+        }
+
+        counts[card.type]++;
+    }
 
     return counts;
- }
-  // TODO 1. Créez un objet vide : const counts = {};
-  // TODO 2. Pour chaque carte : si counts[carte.type] n'existe pas, mettez 0, puis ajoutez 1
-  // TODO 3. Renvoyez counts
-
-
-
+}
+  
 // -------------------------------------------------------------
 // PALIER 3 (bonus)
 // -------------------------------------------------------------

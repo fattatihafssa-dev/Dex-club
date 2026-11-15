@@ -49,45 +49,40 @@ export function el(tag, className = "", text = "") {
  * Seul le bouton du type actif a la classe is-active.
  */
 export function renderTypes(counts, activeType) {
-  typesBox.innerHTML = "";
-  const total = Object.values(counts).reduce( 
-    (sum , number)  => sum + number,
-    0
-  );
+    typesBox.innerHTML = "";
 
-     const allButton = el(
-      "button",
-        "type-btn",
-        `Tous (${total})`
+    const total = Object.values(counts).reduce(
+        (sum, number) => sum + number,
+        0
     );
 
-      allButton.type = "button";
-      allButton.dataset.type = "Tous";
+    const allButton = el("button", "type-btn", `Tous (${total})`);
 
-      if (activeType === "Tous") {
+    allButton.type = "button";
+    allButton.dataset.type = "Tous";
+
+    if (activeType === "Tous") {
         allButton.classList.add("is-active");
+    }
 
-      }
+    typesBox.append(allButton);
 
-      typesBox.append(allButton);
-
-      for (const type in counts ) {
+    for (const type in counts) {
         const button = el(
-          "button",
+            "button",
             "type-btn",
             `${type} (${counts[type]})`
-        ); 
+        );
 
-            button.type = "button";
-            button.dataset.type = type ;
-            
-            if(activeType === type ) {
+        button.type = "button";
+        button.dataset.type = type;
 
-              button.classList.add("is-active")
+        if (activeType === type) {
+            button.classList.add("is-active");
+        }
 
-            }
-            typesBox.append(button);
-          }
+        typesBox.append(button);
+    }
 }
  // TODO 1. Videz #types
   // TODO 2. Créez le bouton « Tous (…) »
@@ -98,10 +93,10 @@ export function renderTypes(counts, activeType) {
  * Affiche le nombre de cartes visibles dans #count : "5 cartes", "1 carte" ou "Aucune carte".
  */
 export function renderCount(n) {
-  if(n === 0) {
-    count.textContent = "Auncune carte";
-  } else if (n === 1) {
-     count.textContent = "1 carte";
+    if (n === 0) {
+        count.textContent = "Aucune carte";
+    } else if (n === 1) {
+        count.textContent = "1 carte";
     } else {
         count.textContent = `${n} cartes`;
     }
@@ -124,22 +119,23 @@ export function renderCount(n) {
  * - palier 2 : classe is-selected si la carte est dans le panier (cart.some(...))
  */
 export function renderGrid(list, cart) {
-  grid.inner = "";
-  if(list.length === 0) {
-    const message = el ("p","empty","Aucune carte trouvée");
-    grid.append(message);
-    return ;
-  }
-       for ( const card of list) {
-        const article = el("article","card");
-        article.dataset.id =card.id;
+    grid.innerHTML = "";
 
-       const image = el("img", "card__img");
+    if (list.length === 0) {
+        const message = el("p", "empty", "Aucune carte trouvée");
+        grid.append(message);
+        return;
+    }
+
+    for (const card of list) {
+        const article = el("article", "card");
+        article.dataset.id = card.id;
+
+        const image = el("img", "card__img");
         image.src = card.image;
         image.alt = card.nom;
 
         const numero = el("p", "card__num", formatNumero(card.id));
-
         const name = el("h3", "card__name", card.nom);
 
         const meta = el("p", "card__meta");
@@ -166,7 +162,6 @@ export function renderGrid(list, cart) {
         }
 
         article.append(image, numero, name, meta, price, button);
-
         grid.append(article);
     }
 }
@@ -180,20 +175,22 @@ export function renderGrid(list, cart) {
  * description, puis une liste <dl> : Rareté, Prix, Stock (« Rupture » si 0).
  */
 export function renderDetail(card) {
-    if (!card) return ; 
+    if (!card) return;
+
     detail.innerHTML = "";
 
-    const image = el("img","detail_img");
-    image.scr = card.image;
+    const image = el("img", "detail__img");
+    image.src = card.image;
     image.alt = card.nom;
 
-    const name = el("h3","datail_name",card.nom);
+    const name = el("h3", "detail__name", card.nom);
 
     const meta = el("p", "detail__meta");
 
-    const numero  = el("span","detail_num",formatNumero(card.id));
-     const badge = el("span", `badge ${typeClass(card.type)}`, card.type);
-      meta.append(numero, badge);
+    const numero = el("span", "detail__num", formatNumero(card.id));
+    const badge = el("span", `badge ${typeClass(card.type)}`, card.type);
+
+    meta.append(numero, badge);
 
     const description = el(
         "p",
@@ -218,9 +215,6 @@ export function renderDetail(card) {
 
     detail.append(image, name, meta, description, list);
 }
-
-
-
 
 // -------------------------------------------------------------
 // PALIER 2

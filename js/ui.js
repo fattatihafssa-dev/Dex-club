@@ -49,16 +49,62 @@ export function el(tag, className = "", text = "") {
  * Seul le bouton du type actif a la classe is-active.
  */
 export function renderTypes(counts, activeType) {
-  // TODO 1. Videz #types
+  typesBox.innerHTML = "";
+  const total = Object.values(counts).reduce( 
+    (sum , number)  => sum + number,
+    0
+  );
+
+     const allButton = el(
+      "button",
+        "type-btn",
+        `Tous (${total})`
+    );
+
+      allButton.type = "button";
+      allButton.dataset.type = "Tous";
+
+      if (activeType === "Tous") {
+        allButton.classList.add("is-active");
+
+      }
+
+      typesBox.append(allButton);
+
+      for (const type in counts ) {
+        const button = el(
+          "button",
+            "type-btn",
+            `${type} (${counts[type]})`
+        ); 
+
+            button.type = "button";
+            button.dataset.type = type ;
+            
+            if(activeType === type ) {
+
+              button.classList.add("is-active")
+
+            }
+            typesBox.append(button);
+          }
+}
+ // TODO 1. Videz #types
   // TODO 2. Créez le bouton « Tous (…) »
   // TODO 3. Pour chaque type de counts (for...in ou Object.keys), créez un bouton
-}
+
 
 /**
  * Affiche le nombre de cartes visibles dans #count : "5 cartes", "1 carte" ou "Aucune carte".
  */
 export function renderCount(n) {
-  // TODO
+  if(n === 0) {
+    count.textContent = "Auncune carte";
+  } else if (n === 1) {
+     count.textContent = "1 carte";
+    } else {
+        count.textContent = `${n} cartes`;
+    }
 }
 
 /**
@@ -78,18 +124,103 @@ export function renderCount(n) {
  * - palier 2 : classe is-selected si la carte est dans le panier (cart.some(...))
  */
 export function renderGrid(list, cart) {
+  grid.inner = "";
+  if(list.length === 0) {
+    const message = el ("p","empty","Aucune carte trouvée");
+    grid.append(message);
+    return ;
+  }
+       for ( const card of list) {
+        const article = el("article","card");
+        article.dataset.id =card.id;
+
+       const image = el("img", "card__img");
+        image.src = card.image;
+        image.alt = card.nom;
+
+        const numero = el("p", "card__num", formatNumero(card.id));
+
+        const name = el("h3", "card__name", card.nom);
+
+        const meta = el("p", "card__meta");
+
+        const badge = el("span", `badge ${typeClass(card.type)}`, card.type);
+        const rarity = el("span", "rarity", card.rarete);
+
+        meta.append(badge, rarity);
+
+        const price = el("p", "card__price", formatPrix(card.prix));
+
+        const button = el("button", "btn btn--primary", "Ajouter");
+        button.type = "button";
+        button.dataset.add = card.id;
+
+        if (card.stock === 0) {
+            article.classList.add("out-of-stock");
+            button.disabled = true;
+            button.textContent = "Rupture";
+        }
+
+        if (cart && cart.some(item => item.id === card.id)) {
+            article.classList.add("is-selected");
+        }
+
+        article.append(image, numero, name, meta, price, button);
+
+        grid.append(article);
+    }
+}
   // TODO 1. Videz #grid
   // TODO 2. Liste vide : ajoutez le message et arrêtez (return)
   // TODO 3. Pour chaque carte : créez l'article et ses enfants, puis grid.append(article)
-}
+
 
 /**
  * Affiche la fiche d'une carte dans #detail : image, nom (h3), numéro + badge du type,
  * description, puis une liste <dl> : Rareté, Prix, Stock (« Rupture » si 0).
  */
 export function renderDetail(card) {
-  // TODO
+    if (!card) return ; 
+    detail.innerHTML = "";
+
+    const image = el("img","detail_img");
+    image.scr = card.image;
+    image.alt = card.nom;
+
+    const name = el("h3","datail_name",card.nom);
+
+    const meta = el("p", "detail__meta");
+
+    const numero  = el("span","detail_num",formatNumero(card.id));
+     const badge = el("span", `badge ${typeClass(card.type)}`, card.type);
+      meta.append(numero, badge);
+
+    const description = el(
+        "p",
+        "detail__description",
+        card.description
+    );
+
+    const list = el("dl", "detail__list");
+
+    const details = [
+        ["Rareté", card.rarete],
+        ["Prix", formatPrix(card.prix)],
+        ["Stock", card.stock === 0 ? "Rupture" : card.stock]
+    ];
+
+    for (const [label, value] of details) {
+        const term = el("dt", "", label);
+        const definition = el("dd", "", String(value));
+
+        list.append(term, definition);
+    }
+
+    detail.append(image, name, meta, description, list);
 }
+
+
+
 
 // -------------------------------------------------------------
 // PALIER 2
